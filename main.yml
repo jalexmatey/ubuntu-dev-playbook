@@ -1,0 +1,17 @@
+---
+- name: Run ubuntu-dev-playbook
+  hosts: localhost
+
+  vars_files:
+    - vars/main.yml
+
+  roles:
+    - role: robertdebock.update
+      update_reboot: false
+      become: true
+      tags: ['update']
+
+  tasks:
+    - name: Install packages for Ubuntu
+      ansible.builtin.import_tasks: tasks/software.yml
+      tags: ['packages']

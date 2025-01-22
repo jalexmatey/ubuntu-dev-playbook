@@ -1,0 +1,57 @@
+---
+- name: Install apt packages
+  become: true
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: present
+
+- name: Creates keyrings directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Install Firefox (non-snap version)
+  become: true
+  block:
+    - name: Import Mozilla APT repository signing key
+      ansible.builtin.get_url:
+        url: https://packages.mozilla.org/apt/repo-signing-key.gpg
+        dest: /etc/apt/keyrings/packages.mozilla.org.asc
+
+    - name: Add Mozilla repository to sources list
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main"
+        filename: mozilla.list
+        state: present
+
+    - name: Configure APT to prioritize Mozilla repository for Firefox
+      ansible.builtin.copy:
+        dest: "/etc/apt/preferences.d/mozilla"
+        content: |
+          Package: *
+          Pin: origin packages.mozilla.org
+          Pin-Priority: 1000 
+
+    - name: Install Firefox
+      ansible.builtin.apt:
+        name: firefox
+        update_cache: yes
+
+#- name: Install opencommit # https://github.com/di-sukharev/opencommit
+#  community.general.npm:
+#    name: opencommit
+#    global: true
+#    state: present
+
+- name: Add the flathub flatpak repository remote to the system installation
+  community.general.flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+
+- name: Install PyCharm Community flatpak
+  community.general.flatpak:
+    name: com.jetbrains.PyCharm-Community
+    state: present
