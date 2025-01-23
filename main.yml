@@ -13,9 +13,6 @@
       update_reboot: false
       become: true
       tags: ['update', 'never']
-    - role: geerlingguy.docker
-      become: true
-      tags: ['docker']
 
   tasks:
     - name: Install packages for Ubuntu
@@ -25,3 +22,6 @@
       ansible.builtin.include_role:
         name: geerlingguy.docker
       tags: ['docker']
+    - name: Setup zsh
+      ansible.builtin.import_tasks: tasks/shell.yml
+      tags: ['shell']

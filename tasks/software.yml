@@ -93,5 +93,18 @@
         update_cache: yes
 
 - name: Install Slack
-  ansible.builtin.apt:
-    deb: https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb
+  become: true
+  block:
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: apt
+
+    - name: Check whether Slack is installed
+      ansible.builtin.debug:
+        msg: "{{ ansible_facts.packages['slack-desktop'] | length }} versions of Slack are installed!"
+      when: "'slack-desktop' in ansible_facts.packages"
+
+    - name: Download and install Slack
+      ansible.builtin.apt:
+        deb: https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb
+      when: ansible_facts.packages['slack-desktop'] | length < 1
