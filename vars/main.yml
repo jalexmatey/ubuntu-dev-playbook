@@ -1,4 +1,4 @@
 ---
+# Packages you want to install on the system
 packages:
   - unattended-upgrades
-  - flatpak

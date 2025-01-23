@@ -5,13 +5,23 @@
   vars_files:
     - vars/main.yml
 
+  pre_tasks:
+
+
   roles:
     - role: robertdebock.update
       update_reboot: false
       become: true
-      tags: ['update']
+      tags: ['update', 'never']
+    - role: geerlingguy.docker
+      become: true
+      tags: ['docker']
 
   tasks:
     - name: Install packages for Ubuntu
       ansible.builtin.import_tasks: tasks/software.yml
       tags: ['packages']
+    - name: Install docker
+      ansible.builtin.include_role:
+        name: geerlingguy.docker
+      tags: ['docker']

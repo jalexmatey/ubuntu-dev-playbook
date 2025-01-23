@@ -45,13 +45,49 @@
 #    global: true
 #    state: present
 
-- name: Add the flathub flatpak repository remote to the system installation
-  community.general.flatpak_remote:
-    name: flathub
-    state: present
-    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+- name: Configure Flatpak
+  block:
+    - name: Install Flatpak
+      become: true
+      ansible.builtin.apt:
+        name:
+          - flatpak
+
+    - name: Add the flathub flatpak repository remote to the system installation
+      community.general.flatpak_remote:
+        name: flathub
+        state: present
+        flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
 
 - name: Install PyCharm Community flatpak
   community.general.flatpak:
     name: com.jetbrains.PyCharm-Community
     state: present
+
+- name: Install gcloud cli
+  become: true
+  block:
+    - name: Install gcloud dependencies
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+          - curl
+        state: present
+
+    - name: Import Google Cloud APT repository signing key
+      ansible.builtin.get_url:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        dest: /etc/apt/keyrings/packages.cloud.google.com.asc
+
+    - name: Add gcloud CLI repository to sources list
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/packages.cloud.google.com.asc] https://packages.cloud.google.com/apt cloud-sdk main"
+        filename: google-cloud-sdk.list
+        state: present
+
+    - name: Install gcloud cli
+      ansible.builtin.apt:
+        name: google-cloud-cli
+        update_cache: yes
