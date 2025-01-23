@@ -91,3 +91,7 @@
       ansible.builtin.apt:
         name: google-cloud-cli
         update_cache: yes
+
+- name: Install Slack
+  ansible.builtin.apt:
+    deb: https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb
