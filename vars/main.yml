@@ -6,6 +6,10 @@ packages:
 username: jalex
 slack_version: 4.41.105 # Find the version here: https://slack.com/intl/en-gb/release-notes/linux
 
+# Git settings
+git_email: jalex@jalexmatey.com
+git_username: jalexmatey
+
 # For linuxbrew
 lb__owner: "{{ username }}"
 lb__group: "{{ username }}"

@@ -39,11 +39,22 @@
         name: firefox
         update_cache: yes
 
-#- name: Install opencommit # https://github.com/di-sukharev/opencommit
-#  community.general.npm:
-#    name: opencommit
-#    global: true
-#    state: present
+- name: Install opencommit # https://github.com/di-sukharev/opencommit
+  become: true
+  block:
+    - name: Install nodejs and npm
+      ansible.builtin.apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Install opencommit via npm
+      community.general.npm:
+        name: opencommit
+        global: true
+        state: present
+
 
 - name: Configure Flatpak
   block:
@@ -104,7 +115,10 @@
         msg: "{{ ansible_facts.packages['slack-desktop'] | length }} versions of Slack are installed!"
       when: "'slack-desktop' in ansible_facts.packages"
 
-    - name: Download and install Slack
-      ansible.builtin.apt:
-        deb: https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb
-      when: ansible_facts.packages['slack-desktop'] | length < 1
+    - name: Install Slack
+      ansible.builtin.shell:
+        cmd: |
+          wget https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb -O /tmp/slack-desktop-{{ slack_version }}-amd64.deb \
+          && sudo apt-get install /tmp/slack-desktop-{{ slack_version }}-amd64.deb
+        executable: /bin/bash
+      when: "'slack-desktop' not in ansible_facts.packages"

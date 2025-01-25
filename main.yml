@@ -21,7 +21,12 @@
     - name: Install docker
       ansible.builtin.include_role:
         name: geerlingguy.docker
+      vars:
+        ansible_become: true
       tags: ['docker']
     - name: Setup zsh
       ansible.builtin.import_tasks: tasks/shell.yml
       tags: ['shell']
+    - name: Setup git
+      ansible.builtin.import_tasks: tasks/git.yml
+      tags: ['git']
