@@ -15,6 +15,11 @@
       tags: ['update', 'never']
 
   tasks:
+    - name: Update brew packages
+      community.general.homebrew:
+        update_homebrew: true
+        upgrade_all: true
+      tags: ['update', 'never']
     - name: Install packages for Ubuntu
       ansible.builtin.import_tasks: tasks/software.yml
       tags: ['packages']

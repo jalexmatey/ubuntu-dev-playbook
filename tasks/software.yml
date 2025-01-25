@@ -122,3 +122,8 @@
           && sudo apt-get install /tmp/slack-desktop-{{ slack_version }}-amd64.deb
         executable: /bin/bash
       when: "'slack-desktop' not in ansible_facts.packages"
+
+- name: Install tfenv
+  community.general.homebrew:
+    name: tfenv
+    state: present
