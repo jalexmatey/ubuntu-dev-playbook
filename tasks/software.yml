@@ -70,11 +70,6 @@
         state: present
         flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
 
-- name: Install PyCharm Community flatpak
-  community.general.flatpak:
-    name: com.jetbrains.PyCharm-Community
-    state: present
-
 - name: Install gcloud cli
   become: true
   block:
@@ -127,3 +122,14 @@
   community.general.homebrew:
     name: tfenv
     state: present
+
+- name: Install tflint
+  community.general.homebrew:
+    name: tflint
+    state: present
+
+- name: Install trivy
+  ansible.builtin.include_role:
+    name: darkwizard242.trivy
+  vars:
+    ansible_become: true

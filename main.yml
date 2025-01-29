@@ -15,6 +15,9 @@
       tags: ['update', 'never']
 
   tasks:
+    - name: Setup zsh
+      ansible.builtin.import_tasks: tasks/shell.yml
+      tags: ['update', 'shell']
     - name: Update brew packages
       community.general.homebrew:
         update_homebrew: true
@@ -28,10 +31,9 @@
         name: geerlingguy.docker
       vars:
         ansible_become: true
+        docker_users:
+          - "{{ username }}"
       tags: ['docker']
-    - name: Setup zsh
-      ansible.builtin.import_tasks: tasks/shell.yml
-      tags: ['shell']
     - name: Setup git
       ansible.builtin.import_tasks: tasks/git.yml
       tags: ['git']

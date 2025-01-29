@@ -2,6 +2,7 @@
 # Packages you want to install on the system
 packages:
   - unattended-upgrades
+  - network-manager-openvpn-gnome
 
 username: jalex
 slack_version: 4.41.105 # Find the version here: https://slack.com/intl/en-gb/release-notes/linux

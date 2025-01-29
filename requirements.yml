@@ -9,3 +9,5 @@ roles:
     version: "7.4.4" # as of 2025/01/23
   - name: ctorgalson.linuxbrew
     version: "v1.2.1" # as of 2025/01/23
+  - name: darkwizard242.trivy
+    version: "2.5.0" # as of 2025/01/29
