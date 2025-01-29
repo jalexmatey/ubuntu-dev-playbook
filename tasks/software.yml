@@ -19,6 +19,7 @@
       ansible.builtin.get_url:
         url: https://packages.mozilla.org/apt/repo-signing-key.gpg
         dest: /etc/apt/keyrings/packages.mozilla.org.asc
+        mode: '0644'
 
     - name: Add Mozilla repository to sources list
       ansible.builtin.apt_repository:
@@ -32,14 +33,15 @@
         content: |
           Package: *
           Pin: origin packages.mozilla.org
-          Pin-Priority: 1000 
+          Pin-Priority: 1000
+        mode: '0644'
 
     - name: Install Firefox
       ansible.builtin.apt:
         name: firefox
-        update_cache: yes
+        update_cache: true
 
-- name: Install opencommit # https://github.com/di-sukharev/opencommit
+- name: Install opencommit  # https://github.com/di-sukharev/opencommit
   become: true
   block:
     - name: Install nodejs and npm
@@ -86,6 +88,7 @@
       ansible.builtin.get_url:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         dest: /etc/apt/keyrings/packages.cloud.google.com.asc
+        mode: '0644'
 
     - name: Add gcloud CLI repository to sources list
       ansible.builtin.apt_repository:
@@ -96,7 +99,7 @@
     - name: Install gcloud cli
       ansible.builtin.apt:
         name: google-cloud-cli
-        update_cache: yes
+        update_cache: true
 
 - name: Install Slack
   become: true
@@ -113,7 +116,8 @@
     - name: Install Slack
       ansible.builtin.shell:
         cmd: |
-          wget https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb -O /tmp/slack-desktop-{{ slack_version }}-amd64.deb \
+          wget https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb \
+          -O /tmp/slack-desktop-{{ slack_version }}-amd64.deb \
           && sudo apt-get install /tmp/slack-desktop-{{ slack_version }}-amd64.deb
         executable: /bin/bash
       when: "'slack-desktop' not in ansible_facts.packages"
@@ -133,3 +137,9 @@
     name: darkwizard242.trivy
   vars:
     ansible_become: true
+
+- name: Install ansible-lint python package
+  ansible.builtin.pip:
+    name:
+      - ansible-lint
+      - yamllint
