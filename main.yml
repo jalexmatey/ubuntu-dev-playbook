@@ -1,0 +1,39 @@
+---
+- name: Run ubuntu-dev-playbook
+  hosts: localhost
+
+  vars_files:
+    - vars/main.yml
+
+  pre_tasks:
+
+
+  roles:
+    - role: robertdebock.update
+      update_reboot: false
+      become: true
+      tags: ['update', 'never']
+
+  tasks:
+    - name: Setup zsh
+      ansible.builtin.import_tasks: tasks/shell.yml
+      tags: ['update', 'shell']
+    - name: Update brew packages
+      community.general.homebrew:
+        update_homebrew: true
+        upgrade_all: true
+      tags: ['update', 'never']
+    - name: Install packages for Ubuntu
+      ansible.builtin.import_tasks: tasks/software.yml
+      tags: ['packages']
+    - name: Install docker
+      ansible.builtin.include_role:
+        name: geerlingguy.docker
+      vars:
+        ansible_become: true
+        docker_users:
+          - "{{ username }}"
+      tags: ['docker']
+    - name: Setup git
+      ansible.builtin.import_tasks: tasks/git.yml
+      tags: ['git']

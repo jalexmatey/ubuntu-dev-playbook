@@ -1,0 +1,17 @@
+---
+- name: Update git email
+  community.general.git_config:
+    name: user.email
+    scope: global
+    value: "{{ git_email }}"
+
+- name: Update git username
+  community.general.git_config:
+    name: user.name
+    scope: global
+    value: "{{ git_username }}"
+
+- name: Generate an OpenSSH ed25519 keypair
+  community.crypto.openssh_keypair:
+    path: "/home/{{ username }}/.ssh/id_ed25519"
+    type: ed25519

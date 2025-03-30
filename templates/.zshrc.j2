@@ -1,0 +1,58 @@
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+eval "$(starship init zsh)"
+
+## Plugins
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# History file for zsh
+HISTFILE=~/.zsh_history
+
+# How many commands to store in history
+HISTSIZE=10000
+SAVEHIST=10000
+
+# Share history in every terminal session
+setopt SHARE_HISTORY
+
+bindkey  "^[[H"   beginning-of-line
+bindkey  "^[[F"   end-of-line
+bindkey  "^[[3~"  delete-char
+
+# Add ~/.local/bin to path
+export PATH="$PATH:~/.local/bin"
+
+################################################################################
+#################################### Aliases ###################################
+################################################################################
+alias whatismyip='curl https://ip6.me/ip/'
+
+### Gcloud
+alias gcloudssh='gcloud compute ssh --tunnel-through-iap'
+
+### Git
+alias gcb='git checkout -b ${1}'
+alias gco='git checkout ${1}'
+alias gpull='git pull --rebase'
+alias gpush='git push'
+alias gpushremote='git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)'
+
+### terraform
+alias tfsec='docker run --rm -it -v "$(pwd):/src" aquasec/tfsec /src'
+alias tffmt='terraform fmt -recursive'
+alias tfval="tffmt && terraform validate && tflint"
+alias tfplan="tfval && terraform plan"
+alias tfplanjson="tfval && terraform plan -out tf_plan && terraform show -json tf_plan > tf_plan.json"
+alias tfapply="tfval && terraform apply"
+
+### docker
+alias dclogs='docker-compose logs --follow'
+
+### trivy
+alias trivyscan='trivy fs --scanners vuln,misconfig,license --severity LOW,MEDIUM,HIGH,CRITICAL ./'
+alias trivyreport='trivy fs --format table -o ~/Downloads/${PWD/*\//}_trivy_report.txt --scanners vuln,secret,config --severity HIGH,CRITICAL ./'
+
+## NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

@@ -1,0 +1,145 @@
+---
+- name: Install apt packages
+  become: true
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: present
+
+- name: Creates keyrings directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Install Firefox (non-snap version)
+  become: true
+  block:
+    - name: Import Mozilla APT repository signing key
+      ansible.builtin.get_url:
+        url: https://packages.mozilla.org/apt/repo-signing-key.gpg
+        dest: /etc/apt/keyrings/packages.mozilla.org.asc
+        mode: "0644"
+
+    - name: Add Mozilla repository to sources list
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main"
+        filename: mozilla.list
+        state: present
+
+    - name: Configure APT to prioritize Mozilla repository for Firefox
+      ansible.builtin.copy:
+        dest: "/etc/apt/preferences.d/mozilla"
+        content: |
+          Package: *
+          Pin: origin packages.mozilla.org
+          Pin-Priority: 1000
+        mode: "0644"
+
+    - name: Install Firefox
+      ansible.builtin.apt:
+        name: firefox
+        update_cache: true
+
+- name: Install opencommit # https://github.com/di-sukharev/opencommit
+  become: true
+  block:
+    - name: Install nodejs and npm
+      ansible.builtin.apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Install opencommit via npm
+      community.general.npm:
+        name: opencommit
+        global: true
+        state: present
+
+- name: Configure Flatpak
+  block:
+    - name: Install Flatpak
+      become: true
+      ansible.builtin.apt:
+        name:
+          - flatpak
+
+    - name: Add the flathub flatpak repository remote to the system installation
+      community.general.flatpak_remote:
+        name: flathub
+        state: present
+        flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+
+- name: Install gcloud cli
+  become: true
+  block:
+    - name: Install gcloud dependencies
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+          - curl
+        state: present
+
+    - name: Import Google Cloud APT repository signing key
+      ansible.builtin.get_url:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        dest: /etc/apt/keyrings/packages.cloud.google.com.asc
+        mode: "0644"
+
+    - name: Add gcloud CLI repository to sources list
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/packages.cloud.google.com.asc] https://packages.cloud.google.com/apt cloud-sdk main"
+        filename: google-cloud-sdk.list
+        state: present
+
+    - name: Install gcloud cli
+      ansible.builtin.apt:
+        name: google-cloud-cli
+        update_cache: true
+
+- name: Install Slack
+  become: true
+  block:
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: apt
+
+    - name: Check whether Slack is installed
+      ansible.builtin.debug:
+        msg: "{{ ansible_facts.packages['slack-desktop'] | length }} versions of Slack are installed!"
+      when: "'slack-desktop' in ansible_facts.packages"
+
+    - name: Install Slack
+      ansible.builtin.shell:
+        cmd: |
+          wget https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb \
+          -O /tmp/slack-desktop-{{ slack_version }}-amd64.deb \
+          && sudo apt-get install /tmp/slack-desktop-{{ slack_version }}-amd64.deb
+        executable: /bin/bash
+      when: "'slack-desktop' not in ansible_facts.packages"
+
+- name: Install tfenv
+  community.general.homebrew:
+    name: tfenv
+    state: present
+
+- name: Install tflint
+  community.general.homebrew:
+    name: tflint
+    state: present
+
+- name: Install trivy
+  ansible.builtin.include_role:
+    name: darkwizard242.trivy
+  vars:
+    ansible_become: true
+
+- name: Install flatpaks
+  community.general.flatpak:
+    name:
+      - app.zen_browser.zen
+      - dev.zed.Zed
+    state: present
