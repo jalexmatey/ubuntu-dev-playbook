@@ -10,7 +10,7 @@
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Install Firefox (non-snap version)
   become: true
@@ -19,7 +19,7 @@
       ansible.builtin.get_url:
         url: https://packages.mozilla.org/apt/repo-signing-key.gpg
         dest: /etc/apt/keyrings/packages.mozilla.org.asc
-        mode: '0644'
+        mode: "0644"
 
     - name: Add Mozilla repository to sources list
       ansible.builtin.apt_repository:
@@ -34,14 +34,14 @@
           Package: *
           Pin: origin packages.mozilla.org
           Pin-Priority: 1000
-        mode: '0644'
+        mode: "0644"
 
     - name: Install Firefox
       ansible.builtin.apt:
         name: firefox
         update_cache: true
 
-- name: Install opencommit  # https://github.com/di-sukharev/opencommit
+- name: Install opencommit # https://github.com/di-sukharev/opencommit
   become: true
   block:
     - name: Install nodejs and npm
@@ -56,7 +56,6 @@
         name: opencommit
         global: true
         state: present
-
 
 - name: Configure Flatpak
   block:
@@ -88,7 +87,7 @@
       ansible.builtin.get_url:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         dest: /etc/apt/keyrings/packages.cloud.google.com.asc
-        mode: '0644'
+        mode: "0644"
 
     - name: Add gcloud CLI repository to sources list
       ansible.builtin.apt_repository:
@@ -138,8 +137,9 @@
   vars:
     ansible_become: true
 
-- name: Install ansible-lint python package
-  ansible.builtin.pip:
+- name: Install flatpaks
+  community.general.flatpak:
     name:
-      - ansible-lint
-      - yamllint
+      - app.zen_browser.zen
+      - dev.zed.Zed
+    state: present
